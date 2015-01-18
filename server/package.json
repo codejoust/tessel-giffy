@@ -1,0 +1,19 @@
+{
+  "name": "giffer-client",
+  "version": "1.0.0",
+  "description": "giffer client server",
+  "main": "server.js",
+  "scripts": {
+    "test": "node test/test.js",
+    "start": "node server.js"
+  },
+  "author": "iain nash",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.10.1",
+    "express": "^4.11.0",
+    "gifencoder": "^1.0.6",
+    "jpeg-js": "^0.1.1",
+    "node-images": "^1.5.5"
+  }
+}
