@@ -1,13 +1,38 @@
-var express = require('express');
 var bodyParser = require('body-parser');
 var httpconstants = require('../common/httpconstants');
-var app = express();
 var fs = require('fs');
 
+
+var express = require('express');
+var app = express();
+var server = require('http').Server(app);
+var io = require('socket.io')(server);
+
+var serveStatic = require('serve-static');
+
+app.use(express.static(__dirname + '/public'));
+
+app.set('view engine', 'jade');
+
+var imagePath = __dirname + '/public/imgs/';
+
 var Canvas = require('canvas')
-  , Image = Canvas.Image
+  , Image = Canvas.Image;
+
+var latestUrl = '/gif-latest.gif';
+var gifPath = __dirname + '/public' + latestUrl;
 
 var GifEncoder = require('gifencoder');
+
+
+io.on('connection', function(socket){
+  console.log('new connection!')
+  fs.readdir(imagePath, function(err, files) {
+    socket.emit('init', {files: files});
+  })
+});
+
+var hasAdded = false;
 
 function setupEncoder() {
   var encoder = new GifEncoder(640, 480);
@@ -15,9 +40,15 @@ function setupEncoder() {
   encoder.setRepeat(0);   // 0 for repeat, -1 for no-repeat
   encoder.setDelay(300);  // frame delay in ms
   encoder.setQuality(10); // image quality. 10 is default.
-  encoder.createReadStream().pipe(fs.createWriteStream(__dirname + '/imgs/myanimated-'+(new Date()).getTime()+'.gif'));
+  var newPath = '/ag-' + (new Date()).getTime() + '.gif';
+
+  io.emit('newImage', newPath);
+  if (hasAdded) { fs.renameSync(gifPath, imagePath + newPath); }
+  hasAdded = true;
+  encoder.createReadStream().pipe(fs.createWriteStream(gifPath));
   return encoder;
 }
+
 
 var encoder = setupEncoder();
 
@@ -47,16 +78,18 @@ app.post(httpconstants.sendImagePath, imageBodyParser, function(req, res) {
   
   encoder.addFrame(ctx); 
 
+  io.emit('reloadPreview', true);
+
+
   imageCount++;
   res.end(':)');
 });
 
-app.get('/', function(req, res) {
-	res.end(':)');
+app.get('/', function (req, res) {
+  res.render('index', {latestUrl: latestUrl});
 })
 
-
-var server = app.listen(httpconstants.port, function () {
+server.listen(httpconstants.port, function () {
 
   var host = server.address().address;
   var port = server.address().port;

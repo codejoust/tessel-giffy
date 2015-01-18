@@ -1,0 +1,18 @@
+html
+  head
+    title Hi!
+    style
+      |  .sm { width: 25%; }
+      |  img,html,body {margin: 0; padding: 0px }
+      |  #latestContainer { position:fixed; left: 50%; margin-left: -350px; top: 30px; border: 30px rgba(0,0,0,0.4) solid; border-top-width: 10px }
+      |  #latestContainer h3 { background: rgba(0,0,0,0.4); margin: 0; font-family: Helvetica; font-size: 20px; color: white; padding: 5px; }
+
+  body
+    #latestContainer
+      h3 hi from the coolest hackathon evar! &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@isiain
+      img(src="#{latestUrl}", id='imageLatest')/
+    div#imageBucket
+      h3 Loading...
+    script(src='/assets/bower_components/jquery/dist/jquery.js')
+    script(src='/socket.io/socket.io.js')
+    script(src='/assets/js/app.js')
